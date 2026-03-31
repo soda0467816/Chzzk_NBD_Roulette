@@ -188,4 +188,4 @@ npm run tauri:build
 
 ## 문서
 
-- 스트리머 사용 가이드: `STREAMER_GUIDE.md`
+- 스트리머 사용 가이드: [STREAMER_GUIDE.md](./STREAMER_GUIDE.md)
