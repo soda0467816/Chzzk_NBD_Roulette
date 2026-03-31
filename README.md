@@ -6,6 +6,10 @@
 
 이 프로젝트는 대부분 Codex와의 상호작용을 통해 피드백을 반영하며 함께 수정해 나가는 방식으로 개발되었습니다.
 
+## 문서
+
+- 스트리머 사용 가이드: [STREAMER_GUIDE.md](./STREAMER_GUIDE.md)
+
 ## 설치 방법
 
 1. [Releases](https://github.com/soda0467816/Chzzk_NBD_Roulette/releases) 페이지로 이동합니다.
