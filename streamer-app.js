@@ -3245,12 +3245,46 @@ function getCollectionUntilDeadlineMs() {
   const base = new Date(state.liveCollectionStartedAtMs);
   const deadline = new Date(base);
   deadline.setHours(hour, minute, 0, 0);
+  return deadline.getTime();
+}
 
-  if (deadline.getTime() <= state.liveCollectionStartedAtMs) {
-    deadline.setDate(deadline.getDate() + 1);
+function validateCollectionUntilTime(referenceMs = Date.now()) {
+  if (!getUseCollectionUntilInput()?.checked) {
+    return { ok: true, deadlineMs: null };
   }
 
-  return deadline.getTime();
+  const timeText = getCollectionUntilTimeInput()?.value || "";
+  if (!timeText) {
+    return {
+      ok: false,
+      reason: "`몇 시까지`를 켰다면 종료 시각도 같이 입력해 주세요.",
+      deadlineMs: null,
+    };
+  }
+
+  const [hourText, minuteText] = timeText.split(":");
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
+    return {
+      ok: false,
+      reason: "`몇 시까지` 시간 형식을 다시 확인해 주세요.",
+      deadlineMs: null,
+    };
+  }
+
+  const deadline = new Date(referenceMs);
+  deadline.setHours(hour, minute, 0, 0);
+
+  if (deadline.getTime() <= referenceMs) {
+    return {
+      ok: false,
+      reason: "`몇 시까지`는 현재 시각보다 늦은 시간만 선택할 수 있습니다.",
+      deadlineMs: null,
+    };
+  }
+
+  return { ok: true, deadlineMs: deadline.getTime() };
 }
 
 function getCollectionAutoStopPlan() {
@@ -3561,7 +3595,7 @@ function ensureCollectionUntilField() {
     <div class="collection-limit-inputs">
       <input id="collection-until-time-input" type="time" value="" />
     </div>
-    <small class="field-hint">비워두면 시각 종료 없이 수집합니다. 지난 시각이면 다음 날로 계산합니다.</small>
+    <small class="field-hint">비워두면 시각 종료 없이 수집합니다. 현재 시각보다 늦은 시간만 선택할 수 있습니다.</small>
   `;
 
   actionRow.append(wrapper);
@@ -4761,6 +4795,14 @@ function startLiveCollection() {
 
   if (!["subscribed", "connecting"].includes(state.liveConnection.connectState)) {
     elements.winnerText.textContent = "먼저 실시간 시작으로 연결을 준비해 주세요.";
+    return;
+  }
+
+  const untilValidation = validateCollectionUntilTime();
+  if (!untilValidation.ok) {
+    elements.winnerText.textContent = untilValidation.reason;
+    window.alert(untilValidation.reason);
+    getCollectionUntilTimeInput()?.focus();
     return;
   }
 
