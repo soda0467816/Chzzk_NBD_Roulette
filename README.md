@@ -4,6 +4,8 @@
 
 치지직 버튜버 [난바다](https://chzzk.naver.com/b1ac916d727d32cb7f472b50f6f97654) 님의 아이디어를 기반으로 만들어졌습니다.
 
+이 프로젝트는 대부분 Codex와의 상호작용을 통해 피드백을 반영하며 함께 수정해 나가는 방식으로 개발되었습니다.
+
 ## 설치 방법
 
 1. [Releases](https://github.com/soda0467816/Chzzk_NBD_Roulette/releases) 페이지로 이동합니다.
