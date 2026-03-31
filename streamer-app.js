@@ -3245,6 +3245,9 @@ function getCollectionUntilDeadlineMs() {
   const base = new Date(state.liveCollectionStartedAtMs);
   const deadline = new Date(base);
   deadline.setHours(hour, minute, 0, 0);
+  if (deadline.getTime() < state.liveCollectionStartedAtMs) {
+    deadline.setDate(deadline.getDate() + 1);
+  }
   return deadline.getTime();
 }
 
@@ -3276,10 +3279,11 @@ function validateCollectionUntilTime(referenceMs = Date.now()) {
   const deadline = new Date(referenceMs);
   deadline.setHours(hour, minute, 0, 0);
 
-  if (deadline.getTime() <= referenceMs) {
+  if (deadline.getHours() === new Date(referenceMs).getHours()
+    && deadline.getMinutes() === new Date(referenceMs).getMinutes()) {
     return {
       ok: false,
-      reason: "`몇 시까지`는 현재 시각보다 늦은 시간만 선택할 수 있습니다.",
+      reason: "`몇 시까지`는 현재와 같은 시각은 선택할 수 없습니다.",
       deadlineMs: null,
     };
   }
@@ -3595,7 +3599,7 @@ function ensureCollectionUntilField() {
     <div class="collection-limit-inputs">
       <input id="collection-until-time-input" type="time" value="" />
     </div>
-    <small class="field-hint">비워두면 시각 종료 없이 수집합니다. 현재 시각보다 늦은 시간만 선택할 수 있습니다.</small>
+    <small class="field-hint">비워두면 시각 종료 없이 수집합니다. 같은 시각은 선택할 수 없고, 더 이른 시각은 다음 날로 계산합니다.</small>
   `;
 
   actionRow.append(wrapper);
