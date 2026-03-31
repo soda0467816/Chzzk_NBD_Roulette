@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>도네 룰렛 오버레이</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="overlay-body">
+    <main class="overlay-shell">
+      <section class="overlay-topbar">
+        <div class="overlay-chip">
+          <span class="overlay-chip-label">문구 수</span>
+          <strong id="overlay-item-count">0</strong>
+        </div>
+        <div class="overlay-chip">
+          <span class="overlay-chip-label">총 칸 수</span>
+          <strong id="overlay-ticket-count">0</strong>
+        </div>
+      </section>
+
+      <section class="overlay-grid">
+        <section class="overlay-panel overlay-wheel-panel">
+          <div class="overlay-panel-head">
+            <h1>도네 룰렛</h1>
+            <p id="overlay-status-text">운영 화면에서 항목을 추가하면 여기에 반영됩니다.</p>
+          </div>
+          <div class="overlay-wheel-stage">
+            <div class="overlay-wheel-shell">
+              <div id="overlay-wheel-container" class="wheel-container"></div>
+              <div class="wheel-pointer" aria-hidden="true"></div>
+            </div>
+          </div>
+          <p id="overlay-winner-text" class="overlay-winner-text">아직 당첨 항목이 없습니다.</p>
+        </section>
+
+        <section class="overlay-panel overlay-list-panel">
+          <div class="overlay-panel-head">
+            <h2>현재 집계</h2>
+            <p>채팅 내용 기준</p>
+          </div>
+          <div id="overlay-summary-list" class="overlay-list empty-state">아직 집계된 항목이 없습니다.</div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="overlay-app.js"></script>
+  </body>
+</html>

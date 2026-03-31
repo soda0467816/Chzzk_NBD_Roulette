@@ -1,0 +1,11 @@
+node_modules/
+dist/
+delivery/
+src-tauri/target/
+
+tmp_*.png
+tmp_*.js
+
+*.log
+Thumbs.db
+.DS_Store

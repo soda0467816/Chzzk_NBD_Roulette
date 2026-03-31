@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>치지직 실시간 도네 룰렛</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <p class="eyebrow">CHZZK LIVE ROULETTE</p>
+        <h1>치지직 도네를 실시간으로 모아서 룰렛 돌리기</h1>
+        <p class="hero-copy">
+          공식 치지직 Session API 후원 이벤트를 받아 명단을 자동 누적하고, 수동 입력도 함께 합쳐서 룰렛을 돌립니다.
+        </p>
+      </section>
+
+      <section class="panel live-panel">
+        <div class="panel-title-row">
+          <h2>치지직 실시간 연결</h2>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-label">인증 상태</span>
+            <strong id="auth-status">확인 중</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">세션 상태</span>
+            <strong id="session-status">대기 중</strong>
+          </article>
+        </div>
+        <div class="action-row">
+          <button id="auth-button" type="button" class="primary-button">치지직 인증</button>
+          <button id="connect-button" type="button" class="primary-button">실시간 연결</button>
+          <button id="disconnect-button" type="button" class="ghost-button" disabled>연결 종료</button>
+          <button id="reset-live-button" type="button" class="ghost-button">실시간 목록 초기화</button>
+        </div>
+        <p class="hint">
+          공식 문서 기준으로 `후원 조회` Scope가 필요합니다. 로컬 서버를 띄우고 redirect URI를 먼저 등록해 주세요.
+        </p>
+      </section>
+
+      <section class="panel settings-panel">
+        <div class="panel-title-row">
+          <h2>기본 설정</h2>
+          <button id="set-now-button" type="button" class="ghost-button">현재 시각으로 시작</button>
+        </div>
+        <div class="settings-grid">
+          <label>
+            <span>집계 시작 시각</span>
+            <input id="start-time-input" type="time" value="19:00" />
+          </label>
+          <label>
+            <span>1칸 기준 금액</span>
+            <input id="unit-amount-input" type="number" min="1" step="100" value="1000" />
+          </label>
+          <label>
+            <span>룰렛 회전 시간(초)</span>
+            <input id="spin-duration-input" type="number" min="2" max="15" step="1" value="6" />
+          </label>
+        </div>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>수동 후원 입력</h2>
+            <button id="load-sample-button" type="button" class="ghost-button">샘플 넣기</button>
+          </div>
+          <p class="hint">
+            테스트용으로 한 줄에 `시간 닉네임 금액 채팅내용` 형식으로 붙여넣을 수 있습니다. 예: <code>19:05 홍길동 3000 민트초코</code>
+          </p>
+          <textarea
+            id="entries-input"
+            rows="12"
+            placeholder="19:05 홍길동 3000 민트초코&#10;19:06 김철수 1000 민트 초코&#10;19:07 박하늘 2000 파인애플피자"
+          ></textarea>
+          <div class="action-row">
+            <button id="process-button" type="button" class="primary-button">집계 반영</button>
+            <button id="copy-roster-button" type="button" class="ghost-button">룰렛 명단 복사</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>집계 요약</h2>
+          <div class="stats-grid">
+            <article class="stat-card">
+              <span class="stat-label">유효 후원 건수</span>
+              <strong id="valid-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">제외 건수</span>
+              <strong id="invalid-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">참가 인원</span>
+              <strong id="participant-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">총 룰렛 칸 수</span>
+              <strong id="ticket-count">0</strong>
+            </article>
+          </div>
+
+          <div class="table-block">
+            <div class="table-header">
+              <h3>채팅 내용별 결과</h3>
+            </div>
+            <div id="summary-table" class="table-body empty-state">집계 결과가 여기 표시됩니다.</div>
+          </div>
+
+          <div class="table-block">
+            <div class="table-header">
+              <h3>제외 항목</h3>
+            </div>
+            <div id="invalid-table" class="table-body empty-state">제외된 항목이 없습니다.</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel">
+          <div class="table-header">
+            <h2>최근 실시간 후원</h2>
+          </div>
+          <div id="live-feed" class="table-body empty-state">실시간 후원이 아직 들어오지 않았습니다.</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>유사 문구 병합</h2>
+            <button id="clear-merges-button" type="button" class="ghost-button">병합 초기화</button>
+          </div>
+          <p class="hint">
+            띄어쓰기나 사소한 차이로 비슷한 문구가 나뉘면, 추천 항목을 눌러 대표 문구 하나로 묶을 수 있습니다.
+          </p>
+          <div id="merge-suggestions" class="table-body empty-state">병합할 유사 문구가 아직 없습니다.</div>
+        </section>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel roulette-panel">
+          <div class="panel-title-row">
+            <h2>룰렛</h2>
+            <button id="spin-button" type="button" class="primary-button" disabled>돌리기</button>
+          </div>
+          <p class="hint">
+            오픈소스 룰렛 엔진을 불러와서 가중치 기반으로 회전합니다. 네트워크가 막혀 있으면 로드 안내가 표시됩니다.
+          </p>
+          <div class="roulette-stage wheel-stage">
+            <div class="wheel-shell">
+              <div id="wheel-container" class="wheel-container"></div>
+              <div class="wheel-pointer" aria-hidden="true"></div>
+            </div>
+          </div>
+          <p id="winner-text" class="winner-text">아직 당첨자가 없습니다.</p>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="live-app.js"></script>
+  </body>
+</html>

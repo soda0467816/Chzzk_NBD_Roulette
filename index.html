@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>도네 룰렛 로컬 MVP</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <p class="eyebrow">LOCAL ROULETTE TOOL</p>
+        <h1>도네 정리하고 바로 룰렛 돌리기</h1>
+        <p class="hero-copy">
+          방송 시작 시각 이후 후원만 모아서 티켓 수를 계산하고, 룰렛 명단까지 한 번에 만듭니다.
+        </p>
+      </section>
+
+      <section class="panel settings-panel">
+        <div class="panel-title-row">
+          <h2>기본 설정</h2>
+          <button id="set-now-button" type="button" class="ghost-button">현재 시각으로 시작</button>
+        </div>
+        <div class="settings-grid">
+          <label>
+            <span>집계 시작 시각</span>
+            <input id="start-time-input" type="time" value="19:00" />
+          </label>
+          <label>
+            <span>1칸 기준 금액</span>
+            <input id="unit-amount-input" type="number" min="1" step="100" value="1000" />
+          </label>
+          <label>
+            <span>룰렛 회전 시간(초)</span>
+            <input id="spin-duration-input" type="number" min="2" max="15" step="1" value="6" />
+          </label>
+        </div>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>후원 입력</h2>
+            <button id="load-sample-button" type="button" class="ghost-button">샘플 넣기</button>
+          </div>
+          <p class="hint">
+            한 줄에 `시간 닉네임 금액` 형식으로 붙여넣어 주세요. 예: <code>19:05 홍길동 3000</code>
+          </p>
+          <textarea
+            id="entries-input"
+            rows="12"
+            placeholder="19:05 홍길동 3000&#10;19:07 김철수 1000&#10;19:10 홍길동 5000"
+          ></textarea>
+          <div class="action-row">
+            <button id="process-button" type="button" class="primary-button">집계하기</button>
+            <button id="copy-roster-button" type="button" class="ghost-button">룰렛 명단 복사</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>집계 요약</h2>
+          <div class="stats-grid">
+            <article class="stat-card">
+              <span class="stat-label">유효 후원 건수</span>
+              <strong id="valid-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">제외 건수</span>
+              <strong id="invalid-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">참가 인원</span>
+              <strong id="participant-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">총 룰렛 칸 수</span>
+              <strong id="ticket-count">0</strong>
+            </article>
+          </div>
+
+          <div class="table-block">
+            <div class="table-header">
+              <h3>닉네임별 결과</h3>
+            </div>
+            <div id="summary-table" class="table-body empty-state">집계 결과가 여기 표시됩니다.</div>
+          </div>
+
+          <div class="table-block">
+            <div class="table-header">
+              <h3>제외 항목</h3>
+            </div>
+            <div id="invalid-table" class="table-body empty-state">제외된 항목이 없습니다.</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel roulette-panel">
+        <div class="panel-title-row">
+          <h2>룰렛</h2>
+          <button id="spin-button" type="button" class="primary-button" disabled>돌리기</button>
+        </div>
+        <p class="hint">
+          오픈소스 룰렛 엔진을 불러와서 가중치 기반으로 회전합니다. 네트워크가 막혀 있으면 로드 안내가 표시됩니다.
+        </p>
+        <div class="roulette-stage wheel-stage">
+          <div class="wheel-shell">
+            <div id="wheel-container" class="wheel-container"></div>
+            <div class="wheel-pointer" aria-hidden="true"></div>
+          </div>
+        </div>
+        <p id="winner-text" class="winner-text">아직 당첨자가 없습니다.</p>
+      </section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

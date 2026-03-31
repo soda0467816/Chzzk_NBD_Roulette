@@ -1,0 +1,19 @@
+{
+  "name": "roulette-mvp",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "vite",
+    "build": "vite build",
+    "live:test": "node scripts/test-live-donations.mjs",
+    "tauri:dev": "cargo tauri dev",
+    "tauri:build": "cargo tauri build"
+  },
+  "devDependencies": {
+    "vite": "^7.1.0"
+  },
+  "dependencies": {
+    "chzzk": "^1.10.4"
+  }
+}

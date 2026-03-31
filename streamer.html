@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>도네 룰렛</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <p class="eyebrow">LIVE DONATION ROULETTE</p>
+        <h1>도네 채팅을 모아서 바로 룰렛 돌리기</h1>
+        <p class="hero-copy">채팅 내용 기준으로 자동 집계하고, 비슷한 문구는 버튼 한 번으로 합칠 수 있어요.</p>
+      </section>
+
+      <section class="panel compact-panel">
+        <div class="panel-title-row">
+          <h2>방송 화면</h2>
+          <button id="toggle-admin-button" type="button" class="ghost-button">운영 패널</button>
+        </div>
+        <div class="status-badge-row">
+          <span class="soft-badge" id="auth-status">로그인 필요</span>
+          <span class="soft-badge" id="session-status">연결 전</span>
+        </div>
+        <p class="hint">기본 화면에서는 핵심 조작만 보입니다. 방송 연결이나 세부 설정은 운영 패널 안에 숨겨집니다.</p>
+        <section id="admin-panel" class="admin-panel" hidden>
+          <div class="action-row tight-row">
+            <button id="auth-button" type="button" class="primary-button">치지직 로그인</button>
+            <button id="connect-button" type="button" class="primary-button">실시간 받기 시작</button>
+            <button id="disconnect-button" type="button" class="ghost-button" disabled>연결 끊기</button>
+            <button id="open-overlay-button" type="button" class="ghost-button">오버레이 열기</button>
+            <button id="reset-live-button" type="button" class="ghost-button">실시간 목록 비우기</button>
+          </div>
+          <div class="settings-grid">
+            <label>
+              <span>집계 시작 시각</span>
+              <input id="start-time-input" type="time" value="19:00" />
+            </label>
+            <label>
+              <span>1개 단위 금액</span>
+              <input id="unit-amount-input" type="number" min="1" step="100" value="1000" />
+              <small class="field-hint">예: 1000원이면 1000원마다 1칸씩 들어갑니다.</small>
+              <div class="preset-row" id="unit-amount-presets">
+                <button type="button" class="ghost-button preset-button" data-unit-amount="1000">1,000원</button>
+                <button type="button" class="ghost-button preset-button" data-unit-amount="5000">5,000원</button>
+                <button type="button" class="ghost-button preset-button" data-unit-amount="10000">10,000원</button>
+              </div>
+            </label>
+            <label>
+              <span>룰렛 회전 시간(초)</span>
+              <input id="spin-duration-input" type="number" min="2" max="15" step="1" value="6" />
+            </label>
+          </div>
+          <label class="toggle-option">
+            <input id="use-name-input" type="checkbox" checked />
+            <span>닉네임 기준 사용</span>
+          </label>
+          <label class="toggle-option">
+            <input id="use-message-input" type="checkbox" checked />
+            <span>메시지 기준 사용</span>
+          </label>
+          <label class="toggle-option">
+            <input id="auto-remove-winner-input" type="checkbox" />
+            <span>당첨 후 해당 항목 자동 제외</span>
+          </label>
+          <label class="toggle-option">
+            <input id="auto-reroll-after-remove-input" type="checkbox" />
+            <span>당첨 항목 자동 제외 후 계속 다시 돌리기</span>
+          </label>
+          <p id="unit-amount-summary" class="hint">현재 기준: 1000원마다 1칸</p>
+          <div class="action-row">
+            <button id="set-now-button" type="button" class="ghost-button">지금부터 집계</button>
+          </div>
+          <section class="saved-roulette-panel">
+            <div class="panel-title-row">
+              <h3>저장된 룰렛</h3>
+              <span id="active-save-label" class="soft-badge">현재 선택: 없음</span>
+            </div>
+            <label class="saved-roulette-name-field">
+              <span>저장 이름</span>
+              <input id="save-name-input" type="text" placeholder="예: 3월 30일 신청곡 룰렛" />
+            </label>
+            <div class="action-row tight-row">
+              <button id="save-current-button" type="button" class="primary-button">새로 저장</button>
+              <button id="overwrite-save-button" type="button" class="ghost-button">현재 선택본 덮어쓰기</button>
+              <button id="clear-active-save-button" type="button" class="ghost-button">선택 해제</button>
+            </div>
+            <div id="saved-roulette-list" class="table-body empty-state">저장된 룰렛이 아직 없습니다.</div>
+          </section>
+          <section class="saved-roulette-panel">
+            <div class="panel-title-row">
+              <h3>당첨 내역</h3>
+              <button id="clear-winner-history-button" type="button" class="ghost-button">전체 비우기</button>
+            </div>
+            <div id="winner-history-list" class="table-body empty-state">아직 당첨 내역이 없습니다.</div>
+          </section>
+        </section>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel">
+          <h2>후원 추가</h2>
+          <div class="quick-entry-grid">
+            <label class="quick-name-field" id="quick-name-field">
+              <span>닉네임</span>
+              <input id="quick-name-input" type="text" placeholder="예: 홍길동" />
+            </label>
+            <div class="quick-calc-row">
+              <label class="quick-amount-field">
+                <span>금액</span>
+                <input id="quick-amount-input" type="number" min="0" step="100" placeholder="예: 1000" />
+                <div class="preset-row" id="quick-amount-presets">
+                  <button type="button" class="ghost-button preset-button" data-quick-amount="1000">1,000원</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-amount="3000">3,000원</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-amount="5000">5,000원</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-amount="10000">10,000원</button>
+                </div>
+              </label>
+              <div class="quick-calc-symbol" aria-hidden="true">×</div>
+              <label class="quick-multiplier-field">
+                <span>배수</span>
+                <input id="quick-multiplier-input" type="number" min="1" step="1" placeholder="예: 5" />
+                <div class="preset-row" id="quick-multiplier-presets">
+                  <button type="button" class="ghost-button preset-button" data-quick-multiplier="1">x1</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-multiplier="5">x5</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-multiplier="10">x10</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-multiplier="15">x15</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-multiplier="20">x20</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-multiplier="30">x30</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-multiplier="50">x50</button>
+                  <button type="button" class="ghost-button preset-button" data-quick-multiplier="100">x100</button>
+                </div>
+              </label>
+            </div>
+            <p id="quick-total-summary" class="quick-total-summary">총합 미리보기: 금액과 배수를 입력해 주세요.</p>
+          </div>
+          <label id="quick-message-field">
+            <span>채팅 내용</span>
+            <input id="quick-message-input" type="text" placeholder="예: 민트초코" />
+          </label>
+          <div class="action-row">
+            <button id="quick-add-button" type="button" class="primary-button">이 항목 추가</button>
+            <button id="copy-roster-button" type="button" class="ghost-button">룰렛 명단 복사</button>
+          </div>
+
+          <details class="stealth-details top-gap">
+            <summary>여러 건 한꺼번에 넣기</summary>
+            <p class="hint">형식: `시간 닉네임 금액 채팅내용`</p>
+            <textarea
+              id="entries-input"
+              rows="8"
+              placeholder="19:05 홍길동 3000 민트초코&#10;19:06 김철수 1000 민트 초코&#10;19:07 박하늘 2000 파인애플피자"
+            ></textarea>
+            <div class="action-row">
+              <button id="process-button" type="button" class="ghost-button">여러 건 반영</button>
+              <button id="load-sample-button" type="button" class="ghost-button">샘플 넣기</button>
+            </div>
+          </details>
+        </section>
+
+        <section class="panel">
+          <h2>현재 집계</h2>
+          <div class="stats-grid">
+            <article class="stat-card">
+              <span class="stat-label">유효 후원</span>
+              <strong id="valid-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">제외 항목</span>
+              <strong id="invalid-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">문구 수</span>
+              <strong id="participant-count">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">총 칸 수</span>
+              <strong id="ticket-count">0</strong>
+            </article>
+          </div>
+          <div class="table-block">
+            <div class="table-header">
+              <h3>채팅 내용별 결과</h3>
+            </div>
+            <div id="summary-table" class="table-body empty-state">아직 집계된 항목이 없습니다.</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>비슷한 문구 합치기</h2>
+            <button id="clear-merges-button" type="button" class="ghost-button">병합 초기화</button>
+          </div>
+          <div class="merge-toolbar">
+            <label class="merge-target-field">
+              <span>대표 문구</span>
+              <input id="merge-target-input" type="text" placeholder="선택한 문구를 이 이름으로 합치기" />
+            </label>
+            <div class="action-row tight-row">
+              <button id="use-selected-merge-target-button" type="button" class="ghost-button">선택 중 첫 문구 사용</button>
+              <button id="apply-merge-button" type="button" class="primary-button">선택 문구 합치기</button>
+              <button id="clear-merge-selection-button" type="button" class="ghost-button">선택 해제</button>
+            </div>
+            <p id="merge-selection-status" class="hint">아직 선택한 문구가 없습니다.</p>
+          </div>
+          <div id="merge-suggestions" class="table-body empty-state">비슷한 문구가 아직 없습니다.</div>
+        </section>
+
+        <section class="panel">
+          <div class="table-header">
+            <h2>최근 들어온 후원</h2>
+          </div>
+          <div id="live-feed" class="table-body empty-state">아직 들어온 후원이 없습니다.</div>
+        </section>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel roulette-panel">
+          <div class="panel-title-row">
+            <h2>룰렛</h2>
+            <div class="action-row tight-row">
+              <button id="spin-button" type="button" class="primary-button" disabled>돌리기</button>
+              <button id="remove-winner-button" type="button" class="ghost-button" disabled>방금 당첨 항목 제외</button>
+              <button id="stop-auto-reroll-button" type="button" class="ghost-button" disabled>자동 재추첨 중지</button>
+            </div>
+          </div>
+          <div class="roulette-stage wheel-stage">
+            <div class="wheel-shell">
+              <div id="wheel-container" class="wheel-container"></div>
+              <div class="wheel-pointer" aria-hidden="true"></div>
+            </div>
+          </div>
+          <p id="winner-text" class="winner-text">아직 당첨 항목이 없습니다.</p>
+        </section>
+
+        <section class="panel">
+          <div class="table-header">
+            <h2>제외된 항목</h2>
+          </div>
+          <div id="invalid-table" class="table-body empty-state">제외된 항목이 없습니다.</div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="streamer-app.js"></script>
+  </body>
+</html>
